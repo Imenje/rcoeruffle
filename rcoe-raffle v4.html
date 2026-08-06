@@ -1,0 +1,447 @@
+<!-- RCoE Staff Raffle — live, shared, closes at 21 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2620; --ink2:#243A30;
+    --gold:#DEB06B; --gold-deep:#A6523D;
+    --cream:#F6F0E4; --paper:#FBF4E4;
+    --mint:#7DBAC4; --coral:#668F99;
+    --line:rgba(246,240,228,.14);
+    --muted:rgba(246,240,228,.62);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:'Jost',system-ui,sans-serif;
+    color:var(--cream);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(222,176,107,.20), transparent 60%),
+      radial-gradient(900px 500px at 0% 110%, rgba(125,186,196,.14), transparent 55%),
+      linear-gradient(160deg,var(--ink),var(--ink2));
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:26px 18px 60px}
+
+  /* header */
+  .eyebrow{
+    font-family:'Jost',sans-serif;
+    font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+    font-size:13px;color:var(--gold);display:flex;align-items:center;gap:9px;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);
+    box-shadow:0 0 0 0 rgba(87,224,196,.7);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(87,224,196,.6)}70%{box-shadow:0 0 0 9px rgba(87,224,196,0)}100%{box-shadow:0 0 0 0 rgba(87,224,196,0)}}
+  h1{
+    font-family:'Jost',sans-serif;
+    font-weight:700;line-height:.94;letter-spacing:-.01em;
+    font-size:clamp(44px,13vw,74px);margin:10px 0 4px;
+  }
+  h1 .amp{color:var(--gold)}
+  .sub{color:var(--muted);font-size:15px;max-width:44ch;margin:0 0 18px}
+
+  .statusbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--line);border-radius:999px;padding:7px 13px;
+    font-size:13px;font-weight:600;background:rgba(255,255,255,.03);
+  }
+  .pill b{color:var(--gold)}
+  .pill.live b{color:var(--mint)}
+
+  /* ticket entry */
+  .ticket{
+    position:relative;background:var(--paper);color:#22281f;
+    border-radius:18px;padding:24px 22px;
+    box-shadow:0 24px 50px -22px rgba(0,0,0,.7);
+  }
+  .ticket::before,.ticket::after{
+    content:"";position:absolute;top:50%;width:24px;height:24px;border-radius:50%;
+    background:var(--ink);transform:translateY(-50%);
+  }
+  .ticket::before{left:-12px} .ticket::after{right:-12px}
+  .ticket .perf{position:absolute;left:16px;right:16px;top:50%;height:0;
+    border-top:2px dashed rgba(36,26,46,.22);display:none}
+
+  .tk-label{
+    font-family:'Jost',sans-serif;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--gold-deep);
+  }
+  .tk-lead{font-size:19px;font-weight:700;margin:4px 0 16px;letter-spacing:-.01em}
+  .field{display:flex;flex-direction:column;gap:8px}
+  input[type=text]{
+    width:100%;font-size:17px;font-family:inherit;color:#22281f;
+    padding:14px 15px;border:1.5px solid rgba(34,40,31,.2);border-radius:12px;
+    background:#fff;outline:none;
+  }
+  input[type=text]:focus{border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(166,82,61,.18)}
+  .hint{font-size:12.5px;color:rgba(34,40,31,.6)}
+  .btn{
+    margin-top:14px;width:100%;border:0;cursor:pointer;
+    font-family:'Jost',sans-serif;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;font-size:19px;
+    padding:15px;border-radius:12px;color:#241a1a;
+    background:linear-gradient(180deg,#E8C48A,var(--gold-deep));
+    box-shadow:0 10px 22px -10px rgba(166,82,61,.55);transition:transform .08s,filter .2s;
+  }
+  .btn:hover{filter:brightness(1.04)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.3)}
+  .err{color:#b4322a;font-size:13.5px;margin-top:10px;font-weight:600;min-height:1px}
+
+  /* reveal */
+  .reveal{margin-top:18px;display:none}
+  .reveal.show{display:block;animation:rise .5s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .stub{
+    background:linear-gradient(180deg,#fff,#FBF2DD);color:#22281f;border-radius:18px;
+    padding:26px 22px;text-align:center;position:relative;overflow:hidden;
+    border:2px solid rgba(166,82,61,.35);
+    box-shadow:0 24px 50px -22px rgba(0,0,0,.7);
+  }
+  .stub.blank{border-color:rgba(102,143,153,.45)}
+  .stub .who{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--gold-deep)}
+  .stub.blank .who{color:var(--coral)}
+  .stub .emoji{font-size:64px;line-height:1;margin:12px 0 6px;display:block}
+  .stub .prize{
+    font-family:'Jost',sans-serif;font-weight:700;
+    font-size:clamp(34px,10vw,52px);line-height:.95;letter-spacing:-.01em;margin:4px 0 2px;
+  }
+  .stub .cap{font-size:14px;color:rgba(34,40,31,.65);margin-top:8px}
+  .rolling{font-family:'Jost',sans-serif;font-weight:700;font-size:34px;color:var(--gold-deep)}
+
+  /* board */
+  .board{margin-top:30px}
+  .board h2{
+    font-family:'Jost',sans-serif;font-weight:600;
+    letter-spacing:.04em;font-size:22px;margin:0 0 4px;display:flex;align-items:center;gap:10px;
+  }
+  .board .cnt{font-size:13px;color:var(--muted);margin:0 0 14px}
+  .row{
+    display:flex;align-items:center;gap:12px;padding:12px 14px;
+    border:1px solid var(--line);border-radius:13px;margin-bottom:9px;
+    background:rgba(255,255,255,.03);animation:rise .35s ease;
+  }
+  .row .ico{font-size:24px;width:30px;text-align:center;flex:none}
+  .row .nm{font-weight:700;font-size:15.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .pz{font-size:13.5px;color:var(--gold);font-weight:600;text-align:right;flex:none}
+  .row.blank .pz{color:var(--coral)}
+  .empty{color:var(--muted);font-size:14px;padding:18px 4px;text-align:center;border:1px dashed var(--line);border-radius:13px}
+
+  .closed-banner{
+    margin-top:22px;padding:16px 18px;border-radius:14px;text-align:center;
+    background:linear-gradient(180deg,rgba(222,176,107,.18),rgba(222,176,107,.07));
+    border:1px solid rgba(222,176,107,.45);font-weight:600;
+  }
+  .closed-banner b{font-family:'Jost',sans-serif;font-weight:600;font-size:20px;letter-spacing:.04em;color:var(--gold)}
+
+  /* organizer */
+  .gear{position:fixed;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--line);background:rgba(23,18,43,.85);color:var(--muted);
+    cursor:pointer;font-size:17px;backdrop-filter:blur(6px)}
+  .modal{position:fixed;inset:0;background:rgba(10,7,20,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+  .modal.show{display:flex}
+  .card{background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:360px;width:100%}
+  .card h3{font-family:'Jost',sans-serif;font-weight:600;margin:0 0 6px;font-size:22px}
+  .card p{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .card input{color:#fff;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;font-size:15px;font-family:inherit}
+  .card .actions{display:flex;gap:10px;margin-top:16px}
+  .card button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .card .ghost{background:transparent;color:var(--cream)}
+  .card .danger{background:var(--gold-deep);border-color:var(--gold-deep);color:#fff}
+
+  canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:15}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+  <div class="eyebrow"><span class="dot"></span> RCoE Staff Raffle</div>
+  <h1>Draw <span class="amp">&amp;</span> win</h1>
+  <p class="sub">Enter your first name, tap the button, and your ticket reveals your prize. One draw per person — good luck!</p>
+
+  <div class="statusbar">
+    <span class="pill live">Live board · <b id="countPill">0</b>/21</span>
+    <span class="pill">19 prizes · <b>2</b> blanks</span>
+    <span class="pill" id="spotsPill">21 spots left</span>
+  </div>
+
+  <div class="ticket" id="entry">
+    <div class="tk-label">Admit one</div>
+    <div class="tk-lead">Your entry ticket</div>
+    <div class="field">
+      <input id="name" type="text" autocomplete="off" placeholder="First name" maxlength="40">
+      <span class="hint">Sharing a first name with someone? Add your last initial, e.g. “James O”.</span>
+    </div>
+    <button class="btn" id="drawBtn">Draw my prize</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="reveal" id="reveal">
+    <div class="stub" id="stub">
+      <div class="who" id="stubWho"></div>
+      <span class="emoji" id="stubEmoji"></span>
+      <div class="prize" id="stubPrize"></div>
+      <div class="cap" id="stubCap"></div>
+    </div>
+  </div>
+
+  <div id="closedBanner"></div>
+
+  <div class="board">
+    <h2>🎟️ Results</h2>
+    <p class="cnt" id="boardCnt">No draws yet — be the first!</p>
+    <div id="rows"></div>
+  </div>
+</div>
+
+<button class="gear" id="gear" title="Organizer">⚙</button>
+<div class="modal" id="modal">
+  <div class="card">
+    <h3>Organizer</h3>
+    <p>Reset wipes all entries and reshuffles the prizes — use this to clear your test runs before you send the link out. Type <b>RESET</b> to confirm.</p>
+    <input id="resetInput" type="text" placeholder="Type RESET" autocomplete="off">
+    <div class="actions">
+      <button class="ghost" id="cancelReset">Cancel</button>
+      <button class="danger" id="confirmReset">Reset raffle</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* --- fill in with your Firebase project's config (Firebase console → Project settings) --- */
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyCLaa80DVtZfhy16B946V9NZ9jtF_HrBH8",
+  authDomain:"rcoe-raffle.firebaseapp.com",
+  databaseURL:"https://rcoe-raffle-default-rtdb.firebaseio.com",
+  projectId:"rcoe-raffle"
+};
+let dbRef=null;
+try{
+  if(FIREBASE_CONFIG.apiKey!=="YOUR_API_KEY"){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    dbRef=firebase.database().ref('rcoe_raffle_v2');
+  }
+}catch(e){console.error('Firebase init failed',e);}
+
+const KEY='rcoe_raffle_v2';
+const CAP=21;
+
+const PRIZES=[
+  'Shirt (Black)','Shirt (Black)','Shirt (Black)','Shirt (White)',
+  'Power Bank',
+  'Biro Pen','Biro Pen','Biro Pen','Biro Pen',
+  'Notebook (Green)','Notebook (Brown)',
+  'Backpack',
+  'Water Bottle (Big)','Water Bottle (Small)',
+  'Big Umbrella','Big Umbrella','Big Umbrella','Big Umbrella',
+  'Small Umbrella',
+  'Better luck next time','Better luck next time'
+];
+const ICON={
+  'Shirt (Black)':'👕','Shirt (White)':'👕','Power Bank':'🔋','Biro Pen':'🖊️',
+  'Notebook (Green)':'📗','Notebook (Brown)':'📔','Backpack':'🎒',
+  'Water Bottle (Big)':'💧','Water Bottle (Small)':'💧','Big Umbrella':'☂️','Small Umbrella':'🌂',
+  'Better luck next time':'💛'
+};
+const isBlank=p=>p==='Better luck next time';
+
+/* ---------- storage (shared across everyone, via Firebase Realtime Database) ---------- */
+const hasFirebase = !!dbRef;
+const hasStore = hasFirebase || (typeof window!=='undefined' && window.storage && typeof window.storage.get==='function');
+
+async function loadState(){
+  if(hasFirebase){ try{ const snap=await dbRef.once('value'); return snap.val(); }catch(e){return null;} }
+  if(window.storage){ try{ const r=await window.storage.get(KEY,true); if(r&&r.value) return JSON.parse(r.value);}catch(e){} return null; }
+  return memState;
+}
+async function saveState(s){
+  if(hasFirebase){ try{ await dbRef.set(s); }catch(e){} return; }
+  if(window.storage){ try{ await window.storage.set(KEY,JSON.stringify(s),true);}catch(e){} return; }
+  memState=s;
+}
+async function deleteState(){
+  if(hasFirebase){ try{ await dbRef.remove(); }catch(e){} return; }
+  if(window.storage){ try{ await window.storage.delete(KEY,true);}catch(e){} return; }
+  memState=null;
+}
+let memState=null; // fallback only if neither Firebase nor window.storage is available
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function titleCase(s){return s.trim().replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function norm(s){return s.trim().toLowerCase().replace(/\s+/g,' ');}
+
+async function ensureState(){
+  let s=await loadState();
+  if(!s||!s.pool){
+    s={pool:shuffle(PRIZES.slice()),order:[],entries:{}};
+    await saveState(s);
+    const again=await loadState();
+    if(again&&again.pool) s=again;
+  }
+  return s;
+}
+
+async function draw(name){
+  const k=norm(name);
+  await ensureState();
+  if(hasFirebase){
+    // atomic read-modify-write so two simultaneous draws can't collide
+    let outcome=null;
+    const res=await dbRef.transaction(s=>{
+      if(!s||!s.pool) return s;
+      if(s.entries&&s.entries[k]){ outcome={status:'returning',prize:s.entries[k].prize,name:s.entries[k].display}; return s; }
+      if(s.order.length>=CAP){ outcome={status:'closed'}; return s; }
+      const prize=s.pool[s.order.length];
+      s.entries=s.entries||{};
+      s.entries[k]={display:titleCase(name),prize,ts:Date.now()};
+      s.order=[...s.order,k];
+      outcome={status:'new',prize,name:titleCase(name)};
+      return s;
+    });
+    return outcome;
+  }
+  let s=await loadState();
+  if(s.entries[k]) return {status:'returning',prize:s.entries[k].prize,name:s.entries[k].display};
+  if(s.order.length>=CAP) return {status:'closed'};
+  const prize=s.pool[s.order.length];
+  s.entries[k]={display:titleCase(name),prize,ts:Date.now()};
+  s.order.push(k);
+  await saveState(s);
+  return {status:'new',prize,name:titleCase(name)};
+}
+
+/* ---------- UI ---------- */
+const $=id=>document.getElementById(id);
+let drawing=false;
+
+function renderBoard(s){
+  const order=(s&&s.order)||[];
+  const entries=(s&&s.entries)||{};
+  const n=order.length;
+  $('countPill').textContent=n;
+  $('spotsPill').textContent=(CAP-n)+' spot'+(CAP-n===1?'':'s')+' left';
+  $('boardCnt').textContent = n===0 ? 'No draws yet — be the first!' : n+' of '+CAP+' entered';
+
+  const rows=$('rows');
+  if(n===0){ rows.innerHTML='<div class="empty">Results will appear here as people draw.</div>'; }
+  else{
+    rows.innerHTML=order.map(k=>{
+      const e=entries[k]; const b=isBlank(e.prize);
+      return '<div class="row'+(b?' blank':'')+'"><span class="ico">'+(ICON[e.prize]||'🎁')+
+        '</span><span class="nm">'+escapeHtml(e.display)+'</span><span class="pz">'+escapeHtml(e.prize)+'</span></div>';
+    }).join('');
+  }
+
+  const closed=n>=CAP;
+  $('drawBtn').disabled = closed || drawing;
+  $('closedBanner').innerHTML = closed
+    ? '<div class="closed-banner"><b>All 21 entries are in — raffle closed! 🎉</b><br>Scroll the results to see what everyone got.</div>'
+    : '';
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function showReveal(name,prize){
+  const blank=isBlank(prize);
+  const stub=$('stub'); stub.classList.toggle('blank',blank);
+  $('stubWho').textContent=name;
+  $('stubEmoji').textContent=ICON[prize]||'🎁';
+  $('stubPrize').textContent=blank?'Better luck next time':prize;
+  $('stubCap').textContent=blank?'No prize this round — thanks for playing 💛':'Come collect your prize 🎉';
+  $('reveal').classList.add('show');
+  if(!blank) burst();
+}
+
+function rollThenReveal(name,prize){
+  const stub=$('stub'); stub.classList.remove('blank');
+  $('stubWho').textContent=name;
+  $('stubEmoji').textContent='🎁';
+  $('stubPrize').innerHTML='<span class="rolling" id="rollTxt">…</span>';
+  $('stubCap').textContent='Drawing your prize';
+  $('reveal').classList.add('show');
+  $('reveal').scrollIntoView({behavior:'smooth',block:'center'});
+  const names=PRIZES.filter((v,i,a)=>a.indexOf(v)===i);
+  let t=0;const iv=setInterval(()=>{
+    const r=$('rollTxt'); if(r) r.textContent=names[t%names.length]; t++;
+  },90);
+  setTimeout(()=>{clearInterval(iv);showReveal(name,prize);},1500);
+}
+
+async function onDraw(){
+  const err=$('err'); err.textContent='';
+  const val=$('name').value.trim();
+  if(val.length<2){ err.textContent='Please enter your first name.'; return; }
+  if(drawing) return;
+  drawing=true; $('drawBtn').disabled=true; $('drawBtn').textContent='Drawing…';
+  try{
+    const res=await draw(val);
+    if(res.status==='closed'){
+      err.textContent='The raffle is full — all 21 spots are taken.';
+    }else if(res.status==='returning'){
+      showReveal(res.name,res.prize);
+      err.textContent='You already drew — here’s your ticket again.';
+    }else{
+      rollThenReveal(res.name,res.prize);
+    }
+  }catch(e){ err.textContent='Something went wrong — try again.'; }
+  finally{
+    drawing=false; $('drawBtn').textContent='Draw my prize';
+    refresh();
+  }
+}
+
+async function refresh(){ const s=await loadState(); renderBoard(s||{order:[],entries:{}}); }
+
+/* confetti */
+const cv=$('confetti'),cx=cv.getContext('2d');let parts=[];
+function size(){cv.width=innerWidth;cv.height=innerHeight;}size();addEventListener('resize',size);
+function burst(){
+  const cols=['#DEB06B','#7DBAC4','#A6523D','#F6F0E4','#72AA42'];
+  for(let i=0;i<130;i++)parts.push({x:innerWidth/2,y:innerHeight*0.34,
+    vx:(Math.random()-.5)*11,vy:Math.random()*-11-3,g:.28,
+    s:Math.random()*7+4,c:cols[i%cols.length],r:Math.random()*6,vr:(Math.random()-.5)*.4,a:1});
+  if(!raf)loop();
+}
+let raf=null;
+function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts=parts.filter(p=>p.a>0);
+  parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.a-=.006;
+    cx.save();cx.globalAlpha=Math.max(p.a,0);cx.translate(p.x,p.y);cx.rotate(p.r);
+    cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore();});
+  if(parts.length){raf=requestAnimationFrame(loop);}else{raf=null;cx.clearRect(0,0,cv.width,cv.height);}
+}
+
+/* organizer reset */
+$('gear').onclick=()=>$('modal').classList.add('show');
+$('cancelReset').onclick=()=>{$('modal').classList.remove('show');$('resetInput').value='';};
+$('confirmReset').onclick=async()=>{
+  if($('resetInput').value.trim().toUpperCase()!=='RESET'){$('resetInput').focus();return;}
+  await deleteState();
+  $('modal').classList.remove('show');$('resetInput').value='';
+  $('reveal').classList.remove('show'); $('err').textContent=''; $('name').value='';
+  await ensureState(); refresh();
+};
+
+/* wire up + live sync */
+$('drawBtn').onclick=onDraw;
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')onDraw();});
+(async()=>{
+  await ensureState();
+  if(hasFirebase){
+    dbRef.on('value',snap=>renderBoard(snap.val())); // real-time push, no polling needed
+  }else{
+    refresh();
+    setInterval(refresh,3000); // fallback polling
+  }
+})();
+
+</script>
