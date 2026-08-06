@@ -295,8 +295,8 @@ async function draw(name){
   if(hasFirebase){
     // atomic read-modify-write so two simultaneous draws can't collide
     let outcome=null;
-    const res=await dbRef.transaction(s=>{
-      if(!s||!s.pool) return s;
+    await dbRef.transaction(s=>{
+      if(!s||!s.pool) s={pool:shuffle(PRIZES.slice()),order:[],entries:{}};
       if(s.entries&&s.entries[k]){ outcome={status:'returning',prize:s.entries[k].prize,name:s.entries[k].display}; return s; }
       if(s.order.length>=CAP){ outcome={status:'closed'}; return s; }
       const prize=s.pool[s.order.length];
@@ -306,6 +306,7 @@ async function draw(name){
       outcome={status:'new',prize,name:titleCase(name)};
       return s;
     });
+    if(!outcome) outcome={status:'closed'};
     return outcome;
   }
   let s=await loadState();
