@@ -1,4 +1,4 @@
-<!-- RCoE Staff Raffle — live, shared, closes at 21 0000000 -->
+<!-- RCoE Staff Raffle — live, shared, closes at 21 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -392,7 +392,7 @@ async function onDraw(){
     }else{
       rollThenReveal(res.name,res.prize);
     }
-  }catch(e){ err.textContent='Something went wrong — try again.'; }
+  }catch(e){ console.error('draw failed:',e); err.textContent='Something went wrong — try again. ('+(e&&e.message?e.message:e)+')'; }
   finally{
     drawing=false; $('drawBtn').textContent='Draw my prize';
     refresh();
