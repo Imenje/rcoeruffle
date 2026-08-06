@@ -297,7 +297,7 @@ async function ensureState(){
 }
 
 async function draw(name){
-  const k=norm(name);
+  const k=dbKey(name);
   await ensureState();
   if(hasFirebase){
     // atomic read-modify-write so two simultaneous draws can't collide
