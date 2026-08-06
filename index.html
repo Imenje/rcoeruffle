@@ -283,6 +283,7 @@ let memState=null; // fallback only if neither Firebase nor window.storage is av
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function titleCase(s){return s.trim().toLowerCase();}
 function norm(s){return s.trim().toLowerCase().replace(/\s+/g,' ');}
+function dbKey(s){return norm(s).replace(/[.#$/\[\]]/g,'_');}
 
 async function ensureState(){
   let s=await loadState();
