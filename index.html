@@ -163,20 +163,20 @@
 <div class="wrap">
   <div class="eyebrow"><span class="dot"></span> RCoE Staff Raffle</div>
   <h1>Draw <span class="amp">&amp;</span> win</h1>
-  <p class="sub">Enter your first name, tap the button, and your ticket reveals your prize. One draw per person — good luck!</p>
+  <p class="sub">Enter your work email, tap the button, and your ticket reveals your prize. One draw per person — good luck!</p>
 
   <div class="statusbar">
-    <span class="pill live">Live board · <b id="countPill">0</b>/21</span>
-    <span class="pill">19 prizes · <b>2</b> blanks</span>
-    <span class="pill" id="spotsPill">21 spots left</span>
+    <span class="pill live">Live board · <b id="countPill">0</b>/19</span>
+    <span class="pill">19 prizes · <b>19</b> staff</span>
+    <span class="pill" id="spotsPill">19 spots left</span>
   </div>
 
   <div class="ticket" id="entry">
     <div class="tk-label">Admit one</div>
     <div class="tk-lead">Your entry ticket</div>
     <div class="field">
-      <input id="name" type="text" autocomplete="off" placeholder="First name" maxlength="40">
-      <span class="hint">Sharing a first name with someone? Add your last initial, e.g. “James O”.</span>
+      <input id="name" type="email" autocomplete="off" placeholder="you@rcmrd.org" maxlength="60">
+      <span class="hint">Only staff on the invite list can draw — one entry per email.</span>
     </div>
     <button class="btn" id="drawBtn">Draw my prize</button>
     <div class="err" id="err"></div>
@@ -232,7 +232,7 @@ try{
 }catch(e){console.error('Firebase init failed',e);}
 
 const KEY='rcoe_raffle_v2';
-const CAP=21;
+const CAP=19;
 
 const PRIZES=[
   'Shirt (Black)','Shirt (Black)','Shirt (Black)','Shirt (White)',
@@ -242,8 +242,7 @@ const PRIZES=[
   'Backpack',
   'Water Bottle (Big)','Water Bottle (Small)',
   'Big Umbrella','Big Umbrella','Big Umbrella','Big Umbrella',
-  'Small Umbrella',
-  'Better luck next time','Better luck next time'
+  'Small Umbrella'
 ];
 const ICON={
   'Shirt (Black)':'👕','Shirt (White)':'👕','Power Bank':'🔋','Biro Pen':'🖊️',
@@ -252,6 +251,13 @@ const ICON={
   'Better luck next time':'💛'
 };
 const isBlank=p=>p==='Better luck next time';
+const ALLOWED_EMAILS=new Set([
+  'asum@rcmrd.org','cameyo@rcmrd.org','cmatolo@rcmrd.org','dmwenda@rcmrd.org',
+  'emakheti@rcmrd.org','ewabwile@rcmrd.org','ifadamullah@rcmrd.org','ioluoch@rcmrd.org',
+  'jbuyengo@rcmrd.org','jgacoki@rcmrd.org','jkarimi@rcmrd.org','jmaina@rcmrd.org',
+  'jnnassuna@rcmrd.org','kwaga@rcmrd.org','mnyoro@rcmrd.org','tmwangi@rcmrd.org',
+  'esthernamonje03@gmail.com','cynthiafumba221@gmail.com','otienoelvis12612@gmail.com'
+]);
 
 /* ---------- storage (shared across everyone, via Firebase Realtime Database) ---------- */
 const hasFirebase = !!dbRef;
@@ -275,7 +281,7 @@ async function deleteState(){
 let memState=null; // fallback only if neither Firebase nor window.storage is available
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function titleCase(s){return s.trim().replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function titleCase(s){return s.trim().toLowerCase();}
 function norm(s){return s.trim().toLowerCase().replace(/\s+/g,' ');}
 
 async function ensureState(){
@@ -346,7 +352,7 @@ function renderBoard(s){
   const closed=n>=CAP;
   $('drawBtn').disabled = closed || drawing;
   $('closedBanner').innerHTML = closed
-    ? '<div class="closed-banner"><b>All 21 entries are in — raffle closed! 🎉</b><br>Scroll the results to see what everyone got.</div>'
+    ? '<div class="closed-banner"><b>All 19 entries are in — raffle closed! 🎉</b><br>Scroll the results to see what everyone got.</div>'
     : '';
 }
 
@@ -381,7 +387,8 @@ function rollThenReveal(name,prize){
 async function onDraw(){
   const err=$('err'); err.textContent='';
   const val=$('name').value.trim();
-  if(val.length<2){ err.textContent='Please enter your first name.'; return; }
+  if(val.length<2){ err.textContent='Please enter your work email.'; return; }
+  if(!ALLOWED_EMAILS.has(norm(val))){ err.textContent='That email isn\'t on the invite list.'; return; }
   if(drawing) return;
   drawing=true; $('drawBtn').disabled=true; $('drawBtn').textContent='Drawing…';
   try{
