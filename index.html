@@ -130,6 +130,9 @@
   .row .nm{font-weight:700;font-size:15.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .row .pz{font-size:13.5px;color:var(--gold);font-weight:600;text-align:right;flex:none}
   .row.blank .pz{color:var(--coral)}
+  .row.locked{opacity:.72}
+  .row.locked .ico{opacity:.7}
+  .row.locked .pz{color:var(--muted);font-style:italic}
   .empty{color:var(--muted);font-size:14px;padding:18px 4px;text-align:center;border:1px dashed var(--line);border-radius:13px}
 
   .closed-banner{
@@ -340,9 +343,15 @@ function renderBoard(s){
   $('spotsPill').textContent=(CAP-n)+' spot'+(CAP-n===1?'':'s')+' left';
   $('boardCnt').textContent = n===0 ? 'No draws yet — be the first!' : n+' of '+CAP+' entered';
 
+  const closed=n>=CAP;
   const rows=$('rows');
   if(n===0){ rows.innerHTML='<div class="empty">Results will appear here as people draw.</div>'; }
-  else{
+  else if(!closed){
+    rows.innerHTML=order.map((k,i)=>{
+      const e=entries[k];
+      return '<div class="row locked"><span class="ico">🔒</span><span class="nm">Ticket #'+(i+1)+' drawn</span><span class="pz">Hidden until reveal</span></div>';
+    }).join('');
+  }else{
     rows.innerHTML=order.map(k=>{
       const e=entries[k]; const b=isBlank(e.prize);
       return '<div class="row'+(b?' blank':'')+'"><span class="ico">'+(ICON[e.prize]||'🎁')+
@@ -350,10 +359,9 @@ function renderBoard(s){
     }).join('');
   }
 
-  const closed=n>=CAP;
   $('drawBtn').disabled = closed || drawing;
   $('closedBanner').innerHTML = closed
-    ? '<div class="closed-banner"><b>All 19 entries are in — raffle closed! 🎉</b><br>Scroll the results to see what everyone got.</div>'
+    ? '<div class="closed-banner"><b>All 19 entries are in — raffle closed! 🎉</b><br>Everyone\'s prize is revealed below.</div>'
     : '';
 }
 
